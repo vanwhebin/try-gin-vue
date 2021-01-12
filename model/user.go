@@ -23,6 +23,8 @@ func IsTelephoneExists(db *gorm.DB, telephone string) bool {
 }
 
 
+
+
 //func CreateUser(name string, telephone string, password string) *gorm.DB{
 //	// 创建用户
 //	newUser := User{
