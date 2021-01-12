@@ -76,12 +76,26 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	if 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password));err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		ctx.JSON(http.StatusExpectationFailed, gin.H{"code": 422, "msg": "密码或用户错误"})
 		return
 	}
-	token := "34132412412"
+	token, err := common.ReleaseToken(user)
+	if err != nil {
+		ctx.JSON(http.StatusServiceUnavailable, gin.H{"code": 500, "msg": "系统异常"})
+		log.Printf("generate jwt token error: %s", err.Error())
+	}
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "登录成功", "data": token})
-
 	// 返回token
 }
+
+func Info(ctx *gin.Context) {
+	user, _ := ctx.Get("user")
+	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "info", "data": user})
+}
+
+func Info1(ctx *gin.Context) {
+	user, _ := ctx.Get("user")
+	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "info", "data": user})
+}
+
