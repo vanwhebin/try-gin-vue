@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"vanwhebin/try-gin-vue/common"
+	"vanwhebin/try-gin-vue/dto"
 	"vanwhebin/try-gin-vue/model"
+	"vanwhebin/try-gin-vue/response"
 	"vanwhebin/try-gin-vue/util"
 )
 
@@ -17,12 +19,12 @@ func Register(ctx *gin.Context) {
 	password := ctx.PostForm("password")
 
 	if len(telephone) != 11 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "手机号必须为11位"})
+		response.Response(ctx, http.StatusUnprocessableEntity,  422, gin.H{},"手机号必须为11位")
 		return
 	}
 
 	if len(password) < 6 || len(password) > 18 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "密码不能少于6位大于18位"})
+		response.Response(ctx, http.StatusUnprocessableEntity,  422, gin.H{},"密码不能少于6位大于18位")
 		return
 	}
 	// 如果用户名没有传则创建一个随机字符串
@@ -33,12 +35,12 @@ func Register(ctx *gin.Context) {
 	//ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "创建成功"})
 	// 用户已存在
 	if model.IsTelephoneExists(common.DB, telephone) {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 400, "msg": "该手机号已注册"})
+		response.Response(ctx, http.StatusUnprocessableEntity,  400, gin.H{},"该手机号已注册")
 		return
 	}
 	pwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "生成密码错误"})
+		response.Response(ctx, http.StatusInternalServerError,  500, gin.H{},"生成密码错误")
 		return
 	}
 	newUser := model.User{
@@ -48,9 +50,8 @@ func Register(ctx *gin.Context) {
 	}
 	result := common.DB.Create(&newUser)
 	fmt.Println(result)
-
+	response.Response(ctx, http.StatusCreated,  201, gin.H{},"创建成功")
 	//model.CreateUser(name, telephone, password)
-	ctx.JSON(http.StatusCreated, gin.H{"code": 201, "msg": "创建成功"})
 }
 
 func Login(ctx *gin.Context) {
@@ -61,41 +62,35 @@ func Login(ctx *gin.Context) {
 	password := ctx.PostForm("password")
 
 	if len(telephone) != 11 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "手机号必须为11位"})
+		response.Response(ctx, http.StatusUnprocessableEntity,  422, gin.H{},"手机号必须为11位")
 		return
 	}
 
 	if len(password) < 6 || len(password) > 18 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "密码不能少于6位大于18位"})
+		response.Response(ctx, http.StatusUnprocessableEntity,  422, gin.H{},"密码不能少于6位大于18位")
 		return
 	}
 	// 查找数据表单数据对比
 	common.DB.Where("telephone=?", telephone).First(&user)
 	if user.ID == 0 {
-		ctx.JSON(http.StatusExpectationFailed, gin.H{"code": 422, "msg": "用户不存在"})
+		response.Response(ctx, http.StatusUnprocessableEntity,  422, gin.H{},"用户不存在")
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		ctx.JSON(http.StatusExpectationFailed, gin.H{"code": 422, "msg": "密码或用户错误"})
+		response.Response(ctx, http.StatusUnprocessableEntity,  422, gin.H{},"密码或用户错误")
 		return
 	}
 	token, err := common.ReleaseToken(user)
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{"code": 500, "msg": "系统异常"})
+		response.Response(ctx, http.StatusServiceUnavailable,  500, gin.H{},"系统异常")
 		log.Printf("generate jwt token error: %s", err.Error())
 	}
-	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "登录成功", "data": token})
+	response.Success(ctx,gin.H{"token": token},"OK")
 	// 返回token
 }
 
 func Info(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
-	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "info", "data": user})
+	response.Success(ctx,gin.H{"user": dto.ToUseDto(user.(model.User))},"OK")
 }
-
-func Info1(ctx *gin.Context) {
-	user, _ := ctx.Get("user")
-	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "info", "data": user})
-}
-

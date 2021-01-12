@@ -9,7 +9,6 @@ import (
 func CollectRoutes(r *gin.Engine) *gin.Engine {
 	r.POST("/api/auth/register", controller.Register)
 	r.POST("/api/auth/login", controller.Login)
-	r.GET("/api/auth/info1", controller.Info1)
 	r.GET("/api/auth/info", middlerware.CheckJwtToken(), controller.Info)
 	return r
 }
