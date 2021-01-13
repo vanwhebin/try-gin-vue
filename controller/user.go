@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -65,8 +64,10 @@ func Register(ctx *gin.Context) {
 		Password:  string(pwd),
 	}
 	result := common.DB.Create(&newUser)
-	fmt.Println(result)
-	response.Response(ctx, http.StatusCreated, 201, gin.H{}, "创建成功")
+	log.Println(result)
+	token, _ := common.ReleaseToken(newUser)
+
+	response.Response(ctx, http.StatusCreated, 201, gin.H{"access_token": token}, "创建成功")
 	//model.CreateUser(name, telephone, password)
 }
 
@@ -104,7 +105,7 @@ func Login(ctx *gin.Context) {
 		response.Response(ctx, http.StatusServiceUnavailable, 500, gin.H{}, "系统异常")
 		log.Printf("generate jwt token error: %s", err.Error())
 	}
-	response.Success(ctx, gin.H{"token": token}, "OK")
+	response.Success(ctx, gin.H{"access_token": token}, "OK")
 	// 返回token
 }
 
