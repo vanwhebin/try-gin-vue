@@ -3,11 +3,12 @@ package common
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/spf13/viper"
 	"time"
 	"vanwhebin/try-gin-vue/model"
 )
 
-var jwtKey = []byte("a_jwt_secret_key")
+var jwtKey = []byte(viper.GetString("jwt.key"))
 
 // define jwt token struct
 
@@ -24,8 +25,8 @@ func ReleaseToken(user model.User) (string, error) {
 		jwt.StandardClaims{
 			ExpiresAt: expire.Unix(),
 			IssuedAt:  time.Now().Unix(),
-			Issuer:    "try_gin_vue",
-			Subject:   "user token",
+			Issuer:    viper.GetString("jwt.issuer"),
+			Subject:   viper.GetString("jwt.subject"),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)

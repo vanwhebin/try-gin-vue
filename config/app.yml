@@ -1,0 +1,17 @@
+server:
+  port: "8000"
+client:
+  domain: "http://localhost:8080"
+datasource:
+  dataType: "mysql"
+  host: "localhost"
+  port: "3306"
+  username: "root"
+  password: "root"
+  database: "try_gin_vue"
+  charset: "utf8"
+jwt:
+  key: "f@i1H17#aa7qeP!#g!mLZMglxnhaO@7PAi%o7QURia6$oFlbHUua8!A%GRRoKS9g"
+  issuer: "try_gin_vue"
+  subject: "user token"
+
