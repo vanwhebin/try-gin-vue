@@ -22,7 +22,6 @@ func InitDB() *gorm.DB {
 	loc := viper.GetString("datasource.loc")
 	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true&loc=%s",
 		username, password, host, port, database, charset, url.QueryEscape(loc))
-	fmt.Println(args)
 	db, err := gorm.Open(mysql.Open(args), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")

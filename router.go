@@ -7,7 +7,7 @@ import (
 )
 
 func CollectRoutes(r *gin.Engine) *gin.Engine {
-	r.Use(middlerware.CORSMiddleware())
+	r.Use(middlerware.CORSMiddleware(), middlerware.ErrorRecover())
 	r.POST("/api/auth/register", controller.Register)
 	r.POST("/api/auth/login", controller.Login)
 	r.GET("/api/auth/info", middlerware.CheckJwtToken(), controller.Info)
