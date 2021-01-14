@@ -10,6 +10,7 @@ datasource:
   password: "root"
   database: "try_gin_vue"
   charset: "utf8"
+  loc: "Asia/Shanghai"
 jwt:
   key: "f@i1H17#aa7qeP!#g!mLZMglxnhaO@7PAi%o7QURia6$oFlbHUua8!A%GRRoKS9g"
   issuer: "try_gin_vue"

@@ -113,3 +113,7 @@ func Info(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
 	response.Success(ctx, gin.H{"user": dto.ToUseDto(user.(model.User))}, "OK")
 }
+
+func Logout(ctx *gin.Context) {
+
+}
