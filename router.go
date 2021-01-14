@@ -20,5 +20,13 @@ func CollectRoutes(r *gin.Engine) *gin.Engine {
 	categoryRoutes.GET(":id", categoryController.Show)
 	categoryRoutes.DELETE(":id", categoryController.Delete)
 
+	postRoutes := r.Group("/api/posts")
+	postController := controller.NewPostController()
+	postRoutes.POST("list", postController.PageList)
+	postRoutes.POST("", middlerware.CheckJwtToken(), postController.Create)
+	postRoutes.PUT(":id", middlerware.CheckJwtToken(), postController.Update)
+	postRoutes.GET(":id", middlerware.CheckJwtToken(), postController.Show)
+	postRoutes.DELETE(":id", middlerware.CheckJwtToken(), postController.Delete)
+
 	return r
 }
