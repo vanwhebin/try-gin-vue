@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
+	"net/http"
 	"strconv"
 	"vanwhebin/try-gin-vue/common"
 	"vanwhebin/try-gin-vue/model"
@@ -62,6 +63,8 @@ func (p PostController) Update(ctx *gin.Context) {
 	postId := ctx.Params.ByName("id")
 
 	var post model.Post
+	// 同样效果的查询语句
+	//if err := p.DB.First(&post,"id = ?", postId).Error; err != nil {
 	if err := p.DB.Find(&post,"id = ?", postId).Error; err != nil {
 		//panic(err)
 		log.Println(err)
@@ -79,7 +82,12 @@ func (p PostController) Update(ctx *gin.Context) {
 	}
 
 	// 更新文章
-	if err := p.DB.Model(&post).Updates(requestPost).Error; err != nil {
+	if err := p.DB.Model(&post).Updates(&model.Post{
+		CategoryId: requestPost.CategoryId,
+		Title:      requestPost.Title,
+		HeadImg:    requestPost.HeadImg,
+		Content:    requestPost.Content,
+	}).Error; err != nil {
 		response.Fail(ctx, nil, "更新失败")
 		return
 	}
@@ -121,7 +129,7 @@ func (p PostController) Delete(ctx *gin.Context) {
 
 	p.DB.Delete(&post)
 
-	response.Success(ctx, gin.H{"post": post}, "删除成功")
+	response.Response(ctx, http.StatusNoContent, 204, nil, "删除成功")
 }
 
 func (p PostController) PageList(ctx *gin.Context) {
@@ -131,7 +139,7 @@ func (p PostController) PageList(ctx *gin.Context) {
 
 	// 分页
 	var posts []model.Post
-	p.DB.Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
+	p.DB.Preload("Category").Order("created_at desc").Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&posts)
 
 	// 前端渲染分页需要知道总数
 	var total int64
